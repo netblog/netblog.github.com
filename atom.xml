@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[Mr. Liu's blog]]></title>
+  <subtitle><![CDATA[只要功夫深,铁杵磨成针]]></subtitle>
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://yoursite.com/"/>
+  <updated>2014-10-28T13:06:46.769Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name><![CDATA[Mr. Liu]]></name>
+    <email><![CDATA[281246533@qq.com]]></email>
+  </author>
+  
+  <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[.NET序列化和反序列化基础知识总结]]></title>
+    <link href="http://yoursite.com/2014/10/15/Serialization/"/>
+    <id>http://yoursite.com/2014/10/15/Serialization/</id>
+    <published>2014-10-15T14:07:30.000Z</published>
+    <updated>2014-10-15T14:26:00.000Z</updated>
+    <content type="html"><![CDATA[<p>.NET序列化和反序列化的学习中都会涉及到什么概念呢？在我们学习之前其实还是要明白问什么会有.NET序列化，它存在的必要性是什么？是如何实现的呢？那么下面我们逐一介绍</p>
+<h2 id="-NET序列化的概念：">.NET序列化的概念：</h2>
+<p>“序列化”可被定义为将对象的状态存储到存储媒介中的过程。在此过程中，对象的公共字段和私有字段以及类的名称（包括包含该类的程序集）都被转换为字节流，然后写入数据流。在以后“反序列化”该对象时，创建原始对象的精确复本。</p>
+<h2 id="-NET序列化和反序列化的必要性">.NET序列化和反序列化的必要性</h2>
+<h3 id="1、将对象的状态保持在存储媒体中，以便可以在以后重新创建精确的副本；">1、将对象的状态保持在存储媒体中，以便可以在以后重新创建精确的副本；</h3>
+<h3 id="2、通过值将对象从一个应用程序域发送到另一个应用程序域中。">2、通过值将对象从一个应用程序域发送到另一个应用程序域中。</h3>
+<p>例如，序列化可用于在 ASP.NET 中保存会话状态并将对象复制到 Windows 窗体的剪贴板中。远程处理还可以使用序列化通过值将对象从一个应用程序域传递到另一个应用程序域中。</p>
+<h2 id="如何实现-NET序列化和反序列化">如何实现.NET序列化和反序列化</h2>
+<h3 id="要实现对象的序列化，首先要保证该对象可以序列化。而且，序列化只是将对象的属性进行有效的保存，对于对象的一些方法则无法实现序列化的。实现一个类可序列化的最简便的方法就是增加Serializable属性标记类。如：">要实现对象的序列化，首先要保证该对象可以序列化。而且，序列化只是将对象的属性进行有效的保存，对于对象的一些方法则无法实现序列化的。实现一个类可序列化的最简便的方法就是增加Serializable属性标记类。如：</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[Serializable()]</div><div class="line">public class MEABlock</div><div class="line">{</div><div class="line">    private int m_ID;</div><div class="line">    public string Caption;</div><div class="line">    public void <span class="function"><span class="title">MEABlock</span></span>()</div><div class="line">    {</div><div class="line">        //构造函数</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>即可实现该类的可序列化。</p>
+<h2 id="要将该类的实例序列化为到文件中要如何做呢">要将该类的实例序列化为到文件中要如何做呢</h2>
+<h3 id="-net_framework_提供了两种方法">.net framework 提供了两种方法</h3>
+<h4 id="（1）XML序列化">（1）XML序列化</h4>
+<p>使用 XmLSerializer 类，可将下列项序列化。<br>◆公共类的公共读／写属性和字段<br>◆实现 ICollection 或 IEnumerable 的类。（注意只有集合会被序列化，而公共属性却不会。）<br>◆XmlElement 对象。<br>◆XmlNode 对象。<br>◆DataSet 对象。<br>要实现上述类的实例的序列化，可参照如下例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">MEABlock myBlock = new MEABlock();</div><div class="line">XmlSerializer mySerializer = new XmlSerializer(typeof(MEABlock));</div><div class="line">StreamWriter myWriter = new StreamWriter(<span class="string">"myFileName.xml"</span>); </div><div class="line">mySerializer.Serialize(myWriter, MEABlock);</div></pre></td></tr></table></figure>
+
+<p>需要注意的是XML序列化只会将public的字段保存，对于私有字段不予于保存。生成的XML文件格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;MEABlock&gt;</div><div class="line">&lt;Caption&gt;Test&lt;/Caption&gt;  </div><div class="line">&lt;/MEABlock&gt;</div></pre></td></tr></table></figure>
+
+<p>对于对象的反序列化，则如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">MEABlock myBlock;</div><div class="line">XmlSerializer mySerializer = new XmlSerializer(typeof(MEABlock));</div><div class="line">FileStream myFileStream = new FileStream(<span class="string">"myFileName.xml"</span>, FileMode.Open);</div><div class="line">myBlock = (MEABlock)mySerializer.Deserialize(myFileStream)</div></pre></td></tr></table></figure>
+
+<h4 id="（2）二进制序列化">（2）二进制序列化</h4>
+<p>与XML序列化不同的是，二进制序列化可以将类的实例中所有字段（包括私有和公有）都进行序列化操作。这就更方便、更准确的还原了对象的副本。<br>要实现上述类的实例的序列化，可参照如下例子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">MEABlock myBlock = new MEABlock();</div><div class="line">IFormatter formatter = new BinaryFormatter();</div><div class="line">Stream stream = new FileStream(<span class="string">"MyFile.bin"</span>,FileMode.Create,FileAccess.Write, FileShare.None);</div><div class="line">formatter.Serialize(stream, myBlock);</div><div class="line">stream.Close();</div></pre></td></tr></table></figure>
+
+<p>对于对象的反序列化，则如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">IFormatter formatter = new BinaryFormatter();</div><div class="line">Stream stream = new FileStream(<span class="string">"MyFile.bin"</span>,FileMode.Open,FileAccess.Read, FileShare.Read);</div><div class="line">MEABlock myBlock = (MEABlock) formatter.Deserialize(stream);</div><div class="line">stream.Close();</div></pre></td></tr></table></figure>
+
+<h2 id="如何变相实现自定义可视化控件的-NET序列化和反序列化">如何变相实现自定义可视化控件的.NET序列化和反序列化</h2>
+<p>对于WinForm中自定义控件，由于继承于System.Windows.Form类，而Form类又是从MarshalByRefObject继承的，窗体本身无法做到序列化，窗体的实现基于Win32下GUI资源，不能脱离当前上下文存在。</p>
+<p>当然可以采用变通的方法实现控件的序列化。这里采用的是记忆类模型。定义记忆类（其实就是一个可序列化的实体类）用于记录控件的有效属性，需要序列化控件的时候，只需要将该控件的实例Copy到记忆类，演变成序列化保存该记忆类的操作。</p>
+<p>.NET反序列化是一个逆过程。将数据流反序列化成为该记忆类，再根据该记忆类的属性生成控件实例。而对于控件的一些事件、方法则可以继续使用。</p>
+<p>.NET序列化和反序列化的基础概念和简单的实现过程就向你介绍到这里，希望对你了解和学习.NET序列化和反序列化有所帮助。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>.NET序列化和反序列化的学习中都会涉及到什么概念呢？在我们学习之前其实还是要明白问什么会有.NET序列化，它存在的必要性是什么？是如何实现的呢？那么下面我们逐一介绍</p>
+<h2 id="-NET序列化的概念：">.NET序列化的概念：</h2>
+<p>“序列化”可被定]]>
+    </summary>
+    
+      <category term="asp.net" scheme="http://yoursite.com/tags/asp-net/"/>
+    
+      <category term="asp.net" scheme="http://yoursite.com/categories/asp-net/"/>
+    
+  </entry>
+  
+</feed>
